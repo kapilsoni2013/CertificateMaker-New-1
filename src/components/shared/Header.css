@@ -1,0 +1,77 @@
+.header {
+  background-color: #2c3e50;
+  color: white;
+  padding: 15px 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.header p {
+  margin: 5px 0 0;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px 20px;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  animation: slideIn 0.3s ease-out;
+}
+
+.notification-success {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.notification-error {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.notification-info {
+  background-color: #3498db;
+  color: white;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 10px 15px;
+  }
+  
+  .header h1 {
+    font-size: 20px;
+  }
+  
+  .notification {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    width: auto;
+  }
+}
