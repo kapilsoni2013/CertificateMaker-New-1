@@ -1,0 +1,59 @@
+.certificate-generator {
+  padding: 20px;
+}
+
+.section-header {
+  margin-bottom: 20px;
+}
+
+.section-header h2 {
+  margin: 0;
+}
+
+.generator-container {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.generator-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-hint {
+  font-size: 14px;
+  color: #666;
+  margin-top: 5px;
+  font-style: italic;
+}
+
+.mapping-errors {
+  margin-top: 10px;
+}
+
+.mapping-errors h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.mapping-errors ul {
+  margin-bottom: 10px;
+}
+
+.mapping-errors p {
+  font-style: italic;
+  margin-bottom: 0;
+}
+
+.form-actions {
+  margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+  .generator-container {
+    gap: 20px;
+  }
+}
