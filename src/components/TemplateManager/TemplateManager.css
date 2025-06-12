@@ -1,0 +1,265 @@
+.template-manager {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.templates-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.templates-header h3 {
+  margin: 0;
+}
+
+.template-uploader {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.template-uploader h3 {
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.upload-area {
+  border: 2px dashed #ddd;
+  border-radius: 5px;
+  padding: 40px;
+  text-align: center;
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: border-color 0.3s, background-color 0.3s;
+}
+
+.upload-area:hover,
+.upload-area.active {
+  border-color: #007bff;
+  background-color: #f0f7ff;
+}
+
+.upload-area p {
+  margin-bottom: 10px;
+  color: #666;
+}
+
+.upload-area input {
+  display: none;
+}
+
+.template-preview {
+  margin-top: 20px;
+}
+
+.template-preview img {
+  max-width: 100%;
+  max-height: 400px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.template-form {
+  margin-top: 20px;
+}
+
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.template-card {
+  background-color: #fff;
+  border-radius: 5px;
+  padding: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.template-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.template-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.template-card-title {
+  margin: 0;
+  font-size: 18px;
+}
+
+.template-card-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.template-card-image {
+  width: 100%;
+  height: 150px;
+  object-fit: contain;
+  border: 1px solid #eee;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.template-card-info {
+  font-size: 14px;
+  color: #666;
+}
+
+.template-card-regions {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.template-editor {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.template-editor h3 {
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.canvas-container {
+  position: relative;
+  margin: 20px 0;
+  border: 1px solid #ddd;
+  overflow: hidden;
+}
+
+.canvas-container canvas {
+  display: block;
+  max-width: 100%;
+}
+
+.region {
+  position: absolute;
+  border: 2px solid rgba(0, 123, 255, 0.7);
+  background-color: rgba(0, 123, 255, 0.1);
+  cursor: move;
+}
+
+.region-label {
+  position: absolute;
+  top: -25px;
+  left: 0;
+  background-color: rgba(0, 123, 255, 0.7);
+  color: white;
+  padding: 2px 5px;
+  font-size: 12px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.region-actions {
+  position: absolute;
+  bottom: -25px;
+  right: 0;
+  display: flex;
+  gap: 5px;
+}
+
+.region-action-btn {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  color: #666;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.region-action-btn:hover {
+  background-color: #f8f9fa;
+}
+
+.region-form {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+.region-form h4 {
+  margin-bottom: 15px;
+}
+
+.region-list {
+  margin-top: 20px;
+}
+
+.region-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  background-color: #f8f9fa;
+}
+
+.region-item-info {
+  flex: 1;
+}
+
+.region-item-name {
+  font-weight: bold;
+}
+
+.region-item-coords {
+  font-size: 12px;
+  color: #666;
+  margin-top: 5px;
+}
+
+.region-item-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.no-templates {
+  text-align: center;
+  padding: 30px;
+  color: #666;
+}
+
+.canvas-instructions {
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  border-left: 4px solid #007bff;
+}
+
+.canvas-instructions h4 {
+  margin-bottom: 10px;
+}
+
+.canvas-instructions ul {
+  padding-left: 20px;
+}
+
+.canvas-instructions li {
+  margin-bottom: 5px;
+}
