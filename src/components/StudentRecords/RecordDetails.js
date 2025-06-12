@@ -15,12 +15,13 @@ const RecordDetails = ({ formTemplate, record = null, onSave, onCancel }) => {
       const initialData = {
         id: uuidv4(),
         formTemplateId: formTemplate.id,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       };
       
       // Initialize empty values for each field
       formTemplate.fields.forEach(field => {
-        initialData[field.region_identifier] = '';
+        initialData[field.region_identifier] = field.defaultValue || '';
       });
       
       setFormData(initialData);
@@ -28,9 +29,12 @@ const RecordDetails = ({ formTemplate, record = null, onSave, onCancel }) => {
   }, [record, formTemplate]);
 
   const handleChange = (e, fieldId) => {
+    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    
     setFormData({
       ...formData,
-      [fieldId]: e.target.value
+      [fieldId]: value,
+      updatedAt: new Date().toISOString()
     });
   };
 
@@ -39,7 +43,8 @@ const RecordDetails = ({ formTemplate, record = null, onSave, onCancel }) => {
     
     // Validate required fields
     const missingFields = formTemplate.fields
-      .filter(field => field.required && !formData[field.region_identifier])
+      .filter(field => field.required && 
+        (formData[field.region_identifier] === '' || formData[field.region_identifier] === undefined))
       .map(field => field.label);
     
     if (missingFields.length > 0) {
@@ -47,17 +52,22 @@ const RecordDetails = ({ formTemplate, record = null, onSave, onCancel }) => {
       return;
     }
     
+    const updatedFormData = {
+      ...formData,
+      updatedAt: new Date().toISOString()
+    };
+    
     if (record) {
-      updateStudentRecord(record.id, formData);
+      updateStudentRecord(record.id, updatedFormData);
     } else {
-      addStudentRecord(formData);
+      addStudentRecord(updatedFormData);
     }
     
-    onSave();
+    onSave(updatedFormData);
   };
 
   const renderField = (field) => {
-    const value = formData[field.region_identifier] || '';
+    const value = formData[field.region_identifier] !== undefined ? formData[field.region_identifier] : '';
     
     switch (field.type) {
       case 'text':
@@ -67,6 +77,8 @@ const RecordDetails = ({ formTemplate, record = null, onSave, onCancel }) => {
             value={value}
             onChange={(e) => handleChange(e, field.region_identifier)}
             required={field.required}
+            placeholder={field.placeholder || ''}
+            disabled={field.disabled}
           />
         );
       
@@ -77,6 +89,11 @@ const RecordDetails = ({ formTemplate, record = null, onSave, onCancel }) => {
             value={value}
             onChange={(e) => handleChange(e, field.region_identifier)}
             required={field.required}
+            min={field.min}
+            max={field.max}
+            step={field.step || 1}
+            placeholder={field.placeholder || ''}
+            disabled={field.disabled}
           />
         );
       
@@ -87,6 +104,9 @@ const RecordDetails = ({ formTemplate, record = null, onSave, onCancel }) => {
             value={value}
             onChange={(e) => handleChange(e, field.region_identifier)}
             required={field.required}
+            min={field.min}
+            max={field.max}
+            disabled={field.disabled}
           />
         );
       
@@ -96,7 +116,9 @@ const RecordDetails = ({ formTemplate, record = null, onSave, onCancel }) => {
             value={value}
             onChange={(e) => handleChange(e, field.region_identifier)}
             required={field.required}
-            rows={4}
+            rows={field.rows || 4}
+            placeholder={field.placeholder || ''}
+            disabled={field.disabled}
           />
         );
       
@@ -106,14 +128,46 @@ const RecordDetails = ({ formTemplate, record = null, onSave, onCancel }) => {
             value={value}
             onChange={(e) => handleChange(e, field.region_identifier)}
             required={field.required}
+            disabled={field.disabled}
           >
-            <option value="">Select an option</option>
+            <option value="">{field.placeholder || 'Select an option'}</option>
             {field.options && field.options.map((option, index) => (
-              <option key={index} value={option}>
-                {option}
+              <option key={index} value={option.value || option}>
+                {option.label || option}
               </option>
             ))}
           </select>
+        );
+      
+      case 'checkbox':
+        return (
+          <input
+            type="checkbox"
+            checked={!!value}
+            onChange={(e) => handleChange(e, field.region_identifier)}
+            required={field.required}
+            disabled={field.disabled}
+          />
+        );
+        
+      case 'radio':
+        return (
+          <div className="radio-group">
+            {field.options && field.options.map((option, index) => (
+              <label key={index} className="radio-option">
+                <input
+                  type="radio"
+                  name={field.region_identifier}
+                  value={option.value || option}
+                  checked={value === (option.value || option)}
+                  onChange={(e) => handleChange(e, field.region_identifier)}
+                  required={field.required}
+                  disabled={field.disabled}
+                />
+                {option.label || option}
+              </label>
+            ))}
+          </div>
         );
       
       default:
@@ -123,6 +177,8 @@ const RecordDetails = ({ formTemplate, record = null, onSave, onCancel }) => {
             value={value}
             onChange={(e) => handleChange(e, field.region_identifier)}
             required={field.required}
+            placeholder={field.placeholder || ''}
+            disabled={field.disabled}
           />
         );
     }
@@ -142,6 +198,7 @@ const RecordDetails = ({ formTemplate, record = null, onSave, onCancel }) => {
                 {field.required && <span className="required">*</span>}
               </label>
               {renderField(field)}
+              {field.helperText && <div className="helper-text">{field.helperText}</div>}
             </div>
           ))}
         </div>
