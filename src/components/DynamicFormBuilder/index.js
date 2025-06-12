@@ -1,22 +1,227 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { 
-  Box, Typography, Button, Paper, Grid, TextField, 
-  MenuItem, IconButton, Dialog, DialogTitle, 
-  DialogContent, DialogActions, Divider, Card, 
-  CardContent, CardActions, Select, FormControl,
-  InputLabel, FormHelperText
-} from '@mui/material';
-import { 
-  Add as AddIcon, 
-  Delete as DeleteIcon, 
-  Edit as EditIcon,
-  DragIndicator as DragIcon,
-  Save as SaveIcon,
-  Preview as PreviewIcon
-} from '@mui/icons-material';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { v4 as uuidv4 } from 'uuid';
 import { AppContext } from '../../context/AppContext';
+import styled from 'styled-components';
+
+// Styled components to replace MUI components
+const Container = styled.div`
+  padding: 20px;
+`;
+
+const Button = styled.button`
+  background-color: ${props => props.variant === 'contained' ? '#1976d2' : 'white'};
+  color: ${props => props.variant === 'contained' ? 'white' : '#1976d2'};
+  border: ${props => props.variant === 'outlined' ? '1px solid #1976d2' : 'none'};
+  border-radius: 4px;
+  padding: 8px 16px;
+  margin: ${props => props.margin || '0'};
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  &:hover {
+    background-color: ${props => props.variant === 'contained' ? '#1565c0' : '#f0f7ff'};
+  }
+  
+  &:disabled {
+    background-color: #e0e0e0;
+    color: #9e9e9e;
+    cursor: default;
+  }
+`;
+
+const IconButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${props => props.color === 'error' ? '#d32f2f' : '#757575'};
+  
+  &:hover {
+    background-color: #f5f5f5;
+    border-radius: 50%;
+  }
+`;
+
+const TextField = styled.div`
+  margin-bottom: ${props => props.mb || '16px'};
+  width: 100%;
+  
+  label {
+    display: block;
+    margin-bottom: 8px;
+    color: ${props => props.error ? '#d32f2f' : '#666'};
+  }
+  
+  input, textarea, select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid ${props => props.error ? '#d32f2f' : '#ccc'};
+    border-radius: 4px;
+    font-size: 16px;
+    
+    &:focus {
+      outline: none;
+      border-color: #1976d2;
+    }
+  }
+  
+  textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+  
+  .helper-text {
+    font-size: 12px;
+    color: ${props => props.error ? '#d32f2f' : '#666'};
+    margin-top: 4px;
+  }
+`;
+
+const Paper = styled.div`
+  background-color: ${props => props.bgColor || 'white'};
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: ${props => props.padding || '16px'};
+  margin-bottom: ${props => props.mb || '0'};
+`;
+
+const Card = styled.div`
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+`;
+
+const CardContent = styled.div`
+  padding: 16px;
+`;
+
+const CardActions = styled.div`
+  display: flex;
+  padding: 8px;
+`;
+
+const Typography = styled.div`
+  margin-bottom: ${props => props.mb || '0'};
+  color: ${props => {
+    if (props.color === 'error') return '#d32f2f';
+    if (props.color === 'text.secondary') return '#666';
+    if (props.color === 'primary') return '#1976d2';
+    return 'inherit';
+  }};
+  font-size: ${props => {
+    if (props.variant === 'h5') return '1.5rem';
+    if (props.variant === 'h6') return '1.25rem';
+    if (props.variant === 'subtitle1') return '1rem';
+    if (props.variant === 'subtitle2') return '0.875rem';
+    if (props.variant === 'body2' || props.variant === 'caption') return '0.875rem';
+    return '1rem';
+  }};
+  font-weight: ${props => {
+    if (props.variant && props.variant.startsWith('h')) return 'bold';
+    if (props.variant && props.variant.startsWith('subtitle')) return 'bold';
+    return 'normal';
+  }};
+  display: ${props => props.display || 'block'};
+  text-align: ${props => props.textAlign || 'left'};
+`;
+
+const Box = styled.div`
+  display: ${props => props.display || 'block'};
+  flex-direction: ${props => props.flexDirection || 'row'};
+  justify-content: ${props => props.justifyContent || 'flex-start'};
+  align-items: ${props => props.alignItems || 'flex-start'};
+  margin-bottom: ${props => props.mb || '0'};
+  margin-top: ${props => props.mt || '0'};
+  margin-right: ${props => props.mr || '0'};
+  margin-left: ${props => props.ml || '0'};
+  padding: ${props => props.p || '0'};
+  flex-grow: ${props => props.flexGrow || '0'};
+`;
+
+const FlexBox = styled(Box)`
+  display: flex;
+`;
+
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-gap: 16px;
+`;
+
+const GridItem = styled.div`
+  grid-column: span ${props => props.xs || 12};
+  
+  @media (min-width: 600px) {
+    grid-column: span ${props => props.sm || props.xs || 12};
+  }
+  
+  @media (min-width: 960px) {
+    grid-column: span ${props => props.md || props.sm || props.xs || 12};
+  }
+`;
+
+const Divider = styled.hr`
+  border: none;
+  border-top: 1px solid #eee;
+  margin: 16px 0;
+`;
+
+const DialogOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`;
+
+const Dialog = styled.div`
+  background: white;
+  border-radius: 4px;
+  width: 100%;
+  max-width: ${props => props.maxWidth === 'md' ? '800px' : '500px'};
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+`;
+
+const DialogTitle = styled.div`
+  padding: 16px 24px;
+  font-size: 1.25rem;
+  font-weight: bold;
+  border-bottom: 1px solid #eee;
+`;
+
+const DialogContent = styled.div`
+  padding: 16px 24px;
+  overflow-y: auto;
+`;
+
+const DialogActions = styled.div`
+  padding: 8px 16px;
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid #eee;
+`;
+
+// Icon components
+const AddIcon = () => <span>➕</span>;
+const DeleteIcon = () => <span>🗑️</span>;
+const EditIcon = () => <span>✏️</span>;
+const DragIcon = () => <span>⋮⋮</span>;
+const SaveIcon = () => <span>💾</span>;
+const PreviewIcon = () => <span>👁️</span>;
 
 const fieldTypes = [
   { value: 'text', label: 'Text Input' },
@@ -226,259 +431,241 @@ const DynamicFormBuilder = () => {
 
   // Render form preview
   const renderFormPreview = () => {
+    if (!showPreview) return null;
+    
     return (
-      <Dialog 
-        open={showPreview} 
-        onClose={() => setShowPreview(false)}
-        fullWidth
-        maxWidth="md"
-      >
-        <DialogTitle>
-          Form Preview: {formName}
-        </DialogTitle>
-        <DialogContent>
-          <Box component="form" sx={{ mt: 2 }}>
-            {fields.map((field) => (
-              <Box key={field.id} sx={{ mb: 3 }}>
-                {field.type === 'text' && (
-                  <TextField
-                    fullWidth
-                    label={field.label}
-                    required={field.required}
-                    helperText={`Region ID: ${field.region_identifier}`}
-                  />
-                )}
-                {field.type === 'number' && (
-                  <TextField
-                    fullWidth
-                    type="number"
-                    label={field.label}
-                    required={field.required}
-                    helperText={`Region ID: ${field.region_identifier}`}
-                  />
-                )}
-                {field.type === 'textarea' && (
-                  <TextField
-                    fullWidth
-                    multiline
-                    rows={4}
-                    label={field.label}
-                    required={field.required}
-                    helperText={`Region ID: ${field.region_identifier}`}
-                  />
-                )}
-                {field.type === 'date' && (
-                  <TextField
-                    fullWidth
-                    type="date"
-                    label={field.label}
-                    required={field.required}
-                    InputLabelProps={{ shrink: true }}
-                    helperText={`Region ID: ${field.region_identifier}`}
-                  />
-                )}
-                {field.type === 'select' && (
-                  <FormControl fullWidth required={field.required}>
-                    <InputLabel>{field.label}</InputLabel>
-                    <Select label={field.label}>
-                      {field.options.map((option, idx) => (
-                        <MenuItem key={idx} value={option}>
-                          {option}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    <FormHelperText>{`Region ID: ${field.region_identifier}`}</FormHelperText>
-                  </FormControl>
-                )}
-              </Box>
-            ))}
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowPreview(false)}>Close</Button>
-        </DialogActions>
-      </Dialog>
+      <DialogOverlay>
+        <Dialog maxWidth="md">
+          <DialogTitle>
+            Form Preview: {formName}
+          </DialogTitle>
+          <DialogContent>
+            <Box mt="16px">
+              {fields.map((field) => (
+                <Box key={field.id} mb="24px">
+                  {field.type === 'text' && (
+                    <TextField>
+                      <label>{field.label}{field.required && ' *'}</label>
+                      <input type="text" />
+                      <div className="helper-text">Region ID: {field.region_identifier}</div>
+                    </TextField>
+                  )}
+                  {field.type === 'number' && (
+                    <TextField>
+                      <label>{field.label}{field.required && ' *'}</label>
+                      <input type="number" />
+                      <div className="helper-text">Region ID: {field.region_identifier}</div>
+                    </TextField>
+                  )}
+                  {field.type === 'textarea' && (
+                    <TextField>
+                      <label>{field.label}{field.required && ' *'}</label>
+                      <textarea rows="4"></textarea>
+                      <div className="helper-text">Region ID: {field.region_identifier}</div>
+                    </TextField>
+                  )}
+                  {field.type === 'date' && (
+                    <TextField>
+                      <label>{field.label}{field.required && ' *'}</label>
+                      <input type="date" />
+                      <div className="helper-text">Region ID: {field.region_identifier}</div>
+                    </TextField>
+                  )}
+                  {field.type === 'select' && (
+                    <TextField>
+                      <label>{field.label}{field.required && ' *'}</label>
+                      <select>
+                        <option value="">Select...</option>
+                        {field.options.map((option, idx) => (
+                          <option key={idx} value={option}>{option}</option>
+                        ))}
+                      </select>
+                      <div className="helper-text">Region ID: {field.region_identifier}</div>
+                    </TextField>
+                  )}
+                </Box>
+              ))}
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setShowPreview(false)}>Close</Button>
+          </DialogActions>
+        </Dialog>
+      </DialogOverlay>
     );
   };
 
   // Render field dialog
   const renderFieldDialog = () => {
+    if (!openDialog) return null;
+    
     return (
-      <Dialog open={openDialog} onClose={handleCloseFieldDialog} fullWidth>
-        <DialogTitle>
-          {currentField.id ? 'Edit Field' : 'Add New Field'}
-        </DialogTitle>
-        <DialogContent>
-          <Box component="form" sx={{ mt: 2 }}>
-            <TextField
-              fullWidth
-              label="Field Label"
-              value={currentField.label}
-              onChange={(e) => setCurrentField({...currentField, label: e.target.value})}
-              error={!!errors.label}
-              helperText={errors.label}
-              sx={{ mb: 2 }}
-            />
-            
-            <TextField
-              fullWidth
-              label="Region Identifier"
-              value={currentField.region_identifier}
-              onChange={(e) => setCurrentField({
-                ...currentField, 
-                region_identifier: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '_')
-              })}
-              error={!!errors.region_identifier}
-              helperText={errors.region_identifier || "Unique identifier used to map data to certificate regions"}
-              sx={{ mb: 2 }}
-            />
-            
-            <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel>Field Type</InputLabel>
-              <Select
-                value={currentField.type}
-                label="Field Type"
-                onChange={(e) => setCurrentField({...currentField, type: e.target.value})}
-              >
-                {fieldTypes.map((type) => (
-                  <MenuItem key={type.value} value={type.value}>
-                    {type.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            
-            {currentField.type === 'select' && (
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                  Options
-                </Typography>
-                
-                <Box sx={{ display: 'flex', mb: 1 }}>
-                  <TextField
-                    fullWidth
-                    label="Add Option"
-                    value={selectOption}
-                    onChange={(e) => setSelectOption(e.target.value)}
-                    error={!!errors.selectOption}
-                    helperText={errors.selectOption}
-                  />
-                  <Button 
-                    variant="contained" 
-                    onClick={handleAddOption}
-                    sx={{ ml: 1 }}
-                  >
-                    Add
-                  </Button>
-                </Box>
-                
-                {errors.options && (
-                  <Typography color="error" variant="caption">
-                    {errors.options}
-                  </Typography>
-                )}
-                
-                <Paper variant="outlined" sx={{ p: 1, mt: 1 }}>
-                  {currentField.options.length === 0 ? (
-                    <Typography variant="body2" color="text.secondary">
-                      No options added yet
-                    </Typography>
-                  ) : (
-                    currentField.options.map((option, index) => (
-                      <Box 
-                        key={index} 
-                        sx={{ 
-                          display: 'flex', 
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          p: 1,
-                          borderBottom: index < currentField.options.length - 1 ? '1px solid #eee' : 'none'
-                        }}
-                      >
-                        <Typography>{option}</Typography>
-                        <IconButton 
-                          size="small" 
-                          onClick={() => handleRemoveOption(index)}
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Box>
-                    ))
-                  )}
-                </Paper>
-              </Box>
-            )}
-            
-            <FormControl sx={{ mt: 2 }}>
-              <label>
+      <DialogOverlay>
+        <Dialog>
+          <DialogTitle>
+            {currentField.id ? 'Edit Field' : 'Add New Field'}
+          </DialogTitle>
+          <DialogContent>
+            <Box mt="16px">
+              <TextField error={!!errors.label} mb="16px">
+                <label>Field Label</label>
                 <input
-                  type="checkbox"
-                  checked={currentField.required}
-                  onChange={(e) => setCurrentField({...currentField, required: e.target.checked})}
+                  type="text"
+                  value={currentField.label}
+                  onChange={(e) => setCurrentField({...currentField, label: e.target.value})}
                 />
-                {' '}Required Field
-              </label>
-            </FormControl>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseFieldDialog}>Cancel</Button>
-          <Button onClick={handleAddField} variant="contained">
-            {currentField.id ? 'Update Field' : 'Add Field'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+                {errors.label && <div className="helper-text">{errors.label}</div>}
+              </TextField>
+              
+              <TextField error={!!errors.region_identifier} mb="16px">
+                <label>Region Identifier</label>
+                <input
+                  type="text"
+                  value={currentField.region_identifier}
+                  onChange={(e) => setCurrentField({
+                    ...currentField, 
+                    region_identifier: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '_')
+                  })}
+                />
+                <div className="helper-text">
+                  {errors.region_identifier || "Unique identifier used to map data to certificate regions"}
+                </div>
+              </TextField>
+              
+              <TextField mb="16px">
+                <label>Field Type</label>
+                <select
+                  value={currentField.type}
+                  onChange={(e) => setCurrentField({...currentField, type: e.target.value})}
+                >
+                  {fieldTypes.map((type) => (
+                    <option key={type.value} value={type.value}>{type.label}</option>
+                  ))}
+                </select>
+              </TextField>
+              
+              {currentField.type === 'select' && (
+                <Box mb="16px">
+                  <Typography variant="subtitle2" mb="8px">Options</Typography>
+                  
+                  <FlexBox mb="8px">
+                    <TextField error={!!errors.selectOption} mb="0" style={{flexGrow: 1}}>
+                      <input
+                        type="text"
+                        placeholder="Add Option"
+                        value={selectOption}
+                        onChange={(e) => setSelectOption(e.target.value)}
+                      />
+                      {errors.selectOption && <div className="helper-text">{errors.selectOption}</div>}
+                    </TextField>
+                    <Button variant="contained" onClick={handleAddOption} margin="0 0 0 8px">
+                      Add
+                    </Button>
+                  </FlexBox>
+                  
+                  {errors.options && (
+                    <Typography color="error" variant="caption">
+                      {errors.options}
+                    </Typography>
+                  )}
+                  
+                  <Paper padding="8px" mt="8px">
+                    {currentField.options.length === 0 ? (
+                      <Typography variant="body2" color="text.secondary">
+                        No options added yet
+                      </Typography>
+                    ) : (
+                      currentField.options.map((option, index) => (
+                        <FlexBox 
+                          key={index} 
+                          justifyContent="space-between"
+                          alignItems="center"
+                          p="8px"
+                          style={{
+                            borderBottom: index < currentField.options.length - 1 ? '1px solid #eee' : 'none'
+                          }}
+                        >
+                          <Typography>{option}</Typography>
+                          <IconButton onClick={() => handleRemoveOption(index)}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </FlexBox>
+                      ))
+                    )}
+                  </Paper>
+                </Box>
+              )}
+              
+              <Box mt="16px">
+                <label style={{display: 'flex', alignItems: 'center'}}>
+                  <input
+                    type="checkbox"
+                    checked={currentField.required}
+                    onChange={(e) => setCurrentField({...currentField, required: e.target.checked})}
+                    style={{marginRight: '8px'}}
+                  />
+                  Required Field
+                </label>
+              </Box>
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseFieldDialog}>Cancel</Button>
+            <Button onClick={handleAddField} variant="contained">
+              {currentField.id ? 'Update Field' : 'Add Field'}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </DialogOverlay>
     );
   };
 
   // Form builder interface
   const renderFormBuilder = () => {
     return (
-      <Box sx={{ p: 3 }}>
-        <Box sx={{ mb: 3 }}>
-          <TextField
-            fullWidth
-            label="Form Template Name"
-            value={formName}
-            onChange={(e) => setFormName(e.target.value)}
-            error={!!errors.formName}
-            helperText={errors.formName}
-          />
+      <Container>
+        <Box mb="24px">
+          <TextField error={!!errors.formName}>
+            <label>Form Template Name</label>
+            <input
+              type="text"
+              value={formName}
+              onChange={(e) => setFormName(e.target.value)}
+            />
+            {errors.formName && <div className="helper-text">{errors.formName}</div>}
+          </TextField>
         </Box>
         
-        <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between' }}>
+        <FlexBox mb="24px" justifyContent="space-between">
           <Typography variant="h6">
             Form Fields
             {errors.fields && (
-              <Typography component="span" color="error" sx={{ ml: 2, fontSize: '0.8rem' }}>
+              <Typography as="span" color="error" style={{marginLeft: '16px', fontSize: '0.8rem'}}>
                 {errors.fields}
               </Typography>
             )}
           </Typography>
           <Button 
             variant="contained" 
-            startIcon={<AddIcon />}
             onClick={() => handleOpenFieldDialog()}
           >
-            Add Field
+            <AddIcon /> Add Field
           </Button>
-        </Box>
+        </FlexBox>
         
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="fields">
             {(provided) => (
-              <Box
+              <div
                 {...provided.droppableProps}
                 ref={provided.innerRef}
-                sx={{ mb: 3 }}
+                style={{marginBottom: '24px'}}
               >
                 {fields.length === 0 ? (
                   <Paper 
-                    sx={{ 
-                      p: 3, 
-                      textAlign: 'center',
-                      backgroundColor: '#f9f9f9'
-                    }}
+                    padding="24px" 
+                    bgColor="#f9f9f9"
+                    style={{textAlign: 'center'}}
                   >
                     <Typography color="text.secondary">
                       No fields added yet. Click "Add Field" to start building your form.
@@ -491,136 +678,131 @@ const DynamicFormBuilder = () => {
                         <Paper
                           ref={provided.innerRef}
                           {...provided.draggableProps}
-                          sx={{ 
-                            p: 2, 
-                            mb: 2,
+                          padding="16px"
+                          mb="16px"
+                          style={{
                             display: 'flex',
-                            alignItems: 'center'
+                            alignItems: 'center',
+                            ...provided.draggableProps.style
                           }}
                         >
-                          <Box {...provided.dragHandleProps} sx={{ mr: 2, color: 'text.secondary' }}>
+                          <div {...provided.dragHandleProps} style={{marginRight: '16px', color: '#666'}}>
                             <DragIcon />
-                          </Box>
+                          </div>
                           
-                          <Box sx={{ flexGrow: 1 }}>
+                          <Box flexGrow="1">
                             <Typography variant="subtitle1">
                               {field.label}
                               {field.required && (
-                                <Typography component="span" color="error" sx={{ ml: 0.5 }}>*</Typography>
+                                <Typography as="span" color="error" style={{marginLeft: '4px'}}>*</Typography>
                               )}
                             </Typography>
                             
-                            <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
-                              <Typography variant="caption" color="text.secondary" sx={{ mr: 2 }}>
+                            <FlexBox alignItems="center" mt="4px">
+                              <Typography variant="caption" color="text.secondary" mr="16px">
                                 Type: {fieldTypes.find(t => t.value === field.type)?.label}
                               </Typography>
                               <Typography variant="caption" color="primary">
                                 Region ID: {field.region_identifier}
                               </Typography>
-                            </Box>
+                            </FlexBox>
                           </Box>
                           
-                          <Box>
+                          <div>
                             <IconButton 
-                              size="small" 
                               onClick={() => handleOpenFieldDialog(field)}
-                              sx={{ mr: 1 }}
+                              style={{marginRight: '8px'}}
                             >
-                              <EditIcon fontSize="small" />
+                              <EditIcon />
                             </IconButton>
                             <IconButton 
-                              size="small"
                               onClick={() => handleDeleteField(field.id)}
                             >
-                              <DeleteIcon fontSize="small" />
+                              <DeleteIcon />
                             </IconButton>
-                          </Box>
+                          </div>
                         </Paper>
                       )}
                     </Draggable>
                   ))
                 )}
                 {provided.placeholder}
-              </Box>
+              </div>
             )}
           </Droppable>
         </DragDropContext>
         
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <FlexBox justifyContent="space-between">
           <Button 
             variant="outlined" 
             onClick={() => setIsEditing(false)}
           >
             Cancel
           </Button>
-          <Box>
+          <div>
             <Button 
               variant="outlined" 
-              startIcon={<PreviewIcon />}
               onClick={() => setShowPreview(true)}
-              sx={{ mr: 2 }}
+              style={{marginRight: '16px'}}
               disabled={fields.length === 0}
             >
-              Preview Form
+              <PreviewIcon /> Preview Form
             </Button>
             <Button 
               variant="contained" 
-              startIcon={<SaveIcon />}
               onClick={handleSaveTemplate}
             >
-              Save Template
+              <SaveIcon /> Save Template
             </Button>
-          </Box>
-        </Box>
-      </Box>
+          </div>
+        </FlexBox>
+      </Container>
     );
   };
 
   // Template list view
   const renderTemplateList = () => {
     return (
-      <Box sx={{ p: 3 }}>
-        <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Container>
+        <FlexBox mb="24px" justifyContent="space-between" alignItems="center">
           <Typography variant="h5">Dynamic Form Templates</Typography>
           <Button 
             variant="contained" 
-            startIcon={<AddIcon />}
             onClick={handleCreateTemplate}
           >
-            Create New Template
+            <AddIcon /> Create New Template
           </Button>
-        </Box>
+        </FlexBox>
         
         {formTemplates.length === 0 ? (
-          <Paper sx={{ p: 3, textAlign: 'center', backgroundColor: '#f9f9f9' }}>
-            <Typography variant="h6" color="text.secondary" gutterBottom>
+          <Paper padding="24px" bgColor="#f9f9f9" style={{textAlign: 'center'}}>
+            <Typography variant="h6" color="text.secondary" mb="16px">
               No Form Templates Yet
             </Typography>
-            <Typography color="text.secondary" paragraph>
+            <Typography color="text.secondary" mb="16px">
               Create your first dynamic form template to get started.
             </Typography>
             <Button 
               variant="outlined" 
-              startIcon={<AddIcon />}
               onClick={handleCreateTemplate}
             >
-              Create Template
+              <AddIcon /> Create Template
             </Button>
           </Paper>
         ) : (
-          <Grid container spacing={3}>
+          <Grid>
             {formTemplates.map((template) => (
-              <Grid item xs={12} sm={6} md={4} key={template.id}>
+              <GridItem key={template.id} xs={12} sm={6} md={4}>
                 <Card>
                   <CardContent>
-                    <Typography variant="h6" gutterBottom>
+                    <Typography variant="h6" mb="8px">
                       {template.name}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                    <Typography variant="body2" color="text.secondary" mb="8px">
                       {template.fields.length} field{template.fields.length !== 1 ? 's' : ''}
                     </Typography>
-                    <Divider sx={{ my: 1 }} />
-                    <Box sx={{ mt: 1 }}>
+                    <Divider />
+                    <Box mt="8px">
                       {template.fields.slice(0, 3).map((field) => (
                         <Typography key={field.id} variant="caption" display="block" color="text.secondary">
                           • {field.label} ({field.region_identifier})
@@ -635,13 +817,11 @@ const DynamicFormBuilder = () => {
                   </CardContent>
                   <CardActions>
                     <Button 
-                      size="small" 
                       onClick={() => handleEditTemplate(template)}
                     >
                       Edit
                     </Button>
                     <Button 
-                      size="small" 
                       color="error"
                       onClick={() => handleDeleteTemplate(template.id)}
                     >
@@ -649,20 +829,20 @@ const DynamicFormBuilder = () => {
                     </Button>
                   </CardActions>
                 </Card>
-              </Grid>
+              </GridItem>
             ))}
           </Grid>
         )}
-      </Box>
+      </Container>
     );
   };
 
   return (
-    <Box>
+    <div>
       {isEditing ? renderFormBuilder() : renderTemplateList()}
       {renderFieldDialog()}
       {renderFormPreview()}
-    </Box>
+    </div>
   );
 };
 
