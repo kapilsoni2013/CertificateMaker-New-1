@@ -146,7 +146,7 @@ const appReducer = (state, action) => {
 };
 
 // Create context
-const AppContext = createContext();
+export const AppContext = createContext();
 
 // Provider component
 export const AppProvider = ({ children }) => {
@@ -451,8 +451,5 @@ export const useAppContext = () => {
   return context;
 };
 
-// Export the context directly along with the provider and hook
-export { AppContext };
-
-// Export AppContext as default export as well
+// Export default
 export default AppContext;
