@@ -1,0 +1,83 @@
+.student-form-container {
+  margin-bottom: 20px;
+}
+
+.student-form-container h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.student-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.subjects-section {
+  margin-top: 10px;
+}
+
+.subjects-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.subjects-header h4 {
+  margin: 0;
+}
+
+.subject-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.subject-inputs {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+}
+
+.subject-inputs .form-group {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.error-message {
+  color: #e74c3c;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.is-invalid {
+  border-color: #e74c3c;
+}
+
+@media (max-width: 768px) {
+  .subject-inputs {
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+  }
+  
+  .subject-row {
+    flex-direction: column;
+  }
+  
+  .subject-row button {
+    align-self: flex-end;
+    margin-top: 5px;
+  }
+}
