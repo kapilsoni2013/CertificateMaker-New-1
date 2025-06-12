@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { v4 as uuidv4 } from 'uuid';
 import { AppContext } from '../../context/AppContext';
-import './DynamicFormBuilder.css'; // Assuming you'll create this CSS file
+import './DynamicFormBuilder.css';
 
 // Icon components
 const AddIcon = () => <span>➕</span>;
@@ -43,6 +42,8 @@ const DynamicFormBuilder = () => {
   });
   const [errors, setErrors] = useState({});
   const [selectOption, setSelectOption] = useState('');
+  const [draggedItemId, setDraggedItemId] = useState(null);
+  const [dragOverItemId, setDragOverItemId] = useState(null);
 
   // Load templates from context on component mount
   useEffect(() => {
@@ -208,14 +209,33 @@ const DynamicFormBuilder = () => {
     setCurrentField({...currentField, options: updatedOptions});
   };
 
-  const handleDragEnd = (result) => {
-    if (!result.destination) return;
+  // Handle drag and drop functionality
+  const handleDragStart = (fieldId) => {
+    setDraggedItemId(fieldId);
+  };
+
+  const handleDragOver = (e, fieldId) => {
+    e.preventDefault();
+    setDragOverItemId(fieldId);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
     
-    const items = Array.from(fields);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
+    if (!draggedItemId || !dragOverItemId || draggedItemId === dragOverItemId) {
+      return;
+    }
+
+    const draggedItemIndex = fields.findIndex(field => field.id === draggedItemId);
+    const dragOverItemIndex = fields.findIndex(field => field.id === dragOverItemId);
     
-    setFields(items);
+    const updatedFields = [...fields];
+    const [draggedItem] = updatedFields.splice(draggedItemIndex, 1);
+    updatedFields.splice(dragOverItemIndex, 0, draggedItem);
+    
+    setFields(updatedFields);
+    setDraggedItemId(null);
+    setDragOverItemId(null);
   };
 
   // Render form preview
@@ -440,84 +460,71 @@ const DynamicFormBuilder = () => {
           </button>
         </div>
         
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable droppableId="fields">
-            {(provided) => (
+        <div className="field-list-container" style={{marginBottom: '24px'}}>
+          {fields.length === 0 ? (
+            <div 
+              className="paper p-24 bg-light"
+              style={{textAlign: 'center'}}
+            >
+              <div className="typography text-secondary">
+                No fields added yet. Click "Add Field" to start building your form.
+              </div>
+            </div>
+          ) : (
+            fields.map((field, index) => (
               <div
-                {...provided.droppableProps}
-                ref={provided.innerRef}
-                style={{marginBottom: '24px'}}
+                key={field.id}
+                className={`paper p-16 mb-16 draggable-field ${dragOverItemId === field.id ? 'drag-over' : ''}`}
+                draggable
+                onDragStart={() => handleDragStart(field.id)}
+                onDragOver={(e) => handleDragOver(e, field.id)}
+                onDrop={handleDrop}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
               >
-                {fields.length === 0 ? (
-                  <div 
-                    className="paper p-24 bg-light"
-                    style={{textAlign: 'center'}}
-                  >
-                    <div className="typography text-secondary">
-                      No fields added yet. Click "Add Field" to start building your form.
+                <div className="drag-handle" style={{marginRight: '16px', color: '#666', cursor: 'move'}}>
+                  <DragIcon />
+                </div>
+                
+                <div className="box flex-grow-1">
+                  <div className="typography subtitle1">
+                    {field.label}
+                    {field.required && (
+                      <span className="typography text-error" style={{marginLeft: '4px'}}>*</span>
+                    )}
+                  </div>
+                  
+                  <div className="flex-box align-center mt-4">
+                    <div className="typography caption text-secondary mr-16">
+                      Type: {fieldTypes.find(t => t.value === field.type)?.label}
+                    </div>
+                    <div className="typography caption text-primary">
+                      Region ID: {field.region_identifier}
                     </div>
                   </div>
-                ) : (
-                  fields.map((field, index) => (
-                    <Draggable key={field.id} draggableId={field.id} index={index}>
-                      {(provided) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          className="paper p-16 mb-16"
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            ...provided.draggableProps.style
-                          }}
-                        >
-                          <div {...provided.dragHandleProps} style={{marginRight: '16px', color: '#666'}}>
-                            <DragIcon />
-                          </div>
-                          
-                          <div className="box flex-grow-1">
-                            <div className="typography subtitle1">
-                              {field.label}
-                              {field.required && (
-                                <span className="typography text-error" style={{marginLeft: '4px'}}>*</span>
-                              )}
-                            </div>
-                            
-                            <div className="flex-box align-center mt-4">
-                              <div className="typography caption text-secondary mr-16">
-                                Type: {fieldTypes.find(t => t.value === field.type)?.label}
-                              </div>
-                              <div className="typography caption text-primary">
-                                Region ID: {field.region_identifier}
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div>
-                            <button 
-                              className="icon-btn"
-                              onClick={() => handleOpenFieldDialog(field)}
-                              style={{marginRight: '8px'}}
-                            >
-                              <EditIcon />
-                            </button>
-                            <button 
-                              className="icon-btn"
-                              onClick={() => handleDeleteField(field.id)}
-                            >
-                              <DeleteIcon />
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </Draggable>
-                  ))
-                )}
-                {provided.placeholder}
+                </div>
+                
+                <div>
+                  <button 
+                    className="icon-btn"
+                    onClick={() => handleOpenFieldDialog(field)}
+                    style={{marginRight: '8px'}}
+                  >
+                    <EditIcon />
+                  </button>
+                  <button 
+                    className="icon-btn"
+                    onClick={() => handleDeleteField(field.id)}
+                  >
+                    <DeleteIcon />
+                  </button>
+                </div>
               </div>
-            )}
-          </Droppable>
-        </DragDropContext>
+            ))
+          )}
+        </div>
         
         <div className="flex-box justify-between">
           <button 
