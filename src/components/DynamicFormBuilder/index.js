@@ -2,218 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { v4 as uuidv4 } from 'uuid';
 import { AppContext } from '../../context/AppContext';
-import styled from 'styled-components';
-
-// Styled components to replace MUI components
-const Container = styled.div`
-  padding: 20px;
-`;
-
-const Button = styled.button`
-  background-color: ${props => props.variant === 'contained' ? '#1976d2' : 'white'};
-  color: ${props => props.variant === 'contained' ? 'white' : '#1976d2'};
-  border: ${props => props.variant === 'outlined' ? '1px solid #1976d2' : 'none'};
-  border-radius: 4px;
-  padding: 8px 16px;
-  margin: ${props => props.margin || '0'};
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  
-  &:hover {
-    background-color: ${props => props.variant === 'contained' ? '#1565c0' : '#f0f7ff'};
-  }
-  
-  &:disabled {
-    background-color: #e0e0e0;
-    color: #9e9e9e;
-    cursor: default;
-  }
-`;
-
-const IconButton = styled.button`
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${props => props.color === 'error' ? '#d32f2f' : '#757575'};
-  
-  &:hover {
-    background-color: #f5f5f5;
-    border-radius: 50%;
-  }
-`;
-
-const TextField = styled.div`
-  margin-bottom: ${props => props.mb || '16px'};
-  width: 100%;
-  
-  label {
-    display: block;
-    margin-bottom: 8px;
-    color: ${props => props.error ? '#d32f2f' : '#666'};
-  }
-  
-  input, textarea, select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid ${props => props.error ? '#d32f2f' : '#ccc'};
-    border-radius: 4px;
-    font-size: 16px;
-    
-    &:focus {
-      outline: none;
-      border-color: #1976d2;
-    }
-  }
-  
-  textarea {
-    min-height: 100px;
-    resize: vertical;
-  }
-  
-  .helper-text {
-    font-size: 12px;
-    color: ${props => props.error ? '#d32f2f' : '#666'};
-    margin-top: 4px;
-  }
-`;
-
-const Paper = styled.div`
-  background-color: ${props => props.bgColor || 'white'};
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: ${props => props.padding || '16px'};
-  margin-bottom: ${props => props.mb || '0'};
-`;
-
-const Card = styled.div`
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-`;
-
-const CardContent = styled.div`
-  padding: 16px;
-`;
-
-const CardActions = styled.div`
-  display: flex;
-  padding: 8px;
-`;
-
-const Typography = styled.div`
-  margin-bottom: ${props => props.mb || '0'};
-  color: ${props => {
-    if (props.color === 'error') return '#d32f2f';
-    if (props.color === 'text.secondary') return '#666';
-    if (props.color === 'primary') return '#1976d2';
-    return 'inherit';
-  }};
-  font-size: ${props => {
-    if (props.variant === 'h5') return '1.5rem';
-    if (props.variant === 'h6') return '1.25rem';
-    if (props.variant === 'subtitle1') return '1rem';
-    if (props.variant === 'subtitle2') return '0.875rem';
-    if (props.variant === 'body2' || props.variant === 'caption') return '0.875rem';
-    return '1rem';
-  }};
-  font-weight: ${props => {
-    if (props.variant && props.variant.startsWith('h')) return 'bold';
-    if (props.variant && props.variant.startsWith('subtitle')) return 'bold';
-    return 'normal';
-  }};
-  display: ${props => props.display || 'block'};
-  text-align: ${props => props.textAlign || 'left'};
-`;
-
-const Box = styled.div`
-  display: ${props => props.display || 'block'};
-  flex-direction: ${props => props.flexDirection || 'row'};
-  justify-content: ${props => props.justifyContent || 'flex-start'};
-  align-items: ${props => props.alignItems || 'flex-start'};
-  margin-bottom: ${props => props.mb || '0'};
-  margin-top: ${props => props.mt || '0'};
-  margin-right: ${props => props.mr || '0'};
-  margin-left: ${props => props.ml || '0'};
-  padding: ${props => props.p || '0'};
-  flex-grow: ${props => props.flexGrow || '0'};
-`;
-
-const FlexBox = styled(Box)`
-  display: flex;
-`;
-
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  grid-gap: 16px;
-`;
-
-const GridItem = styled.div`
-  grid-column: span ${props => props.xs || 12};
-  
-  @media (min-width: 600px) {
-    grid-column: span ${props => props.sm || props.xs || 12};
-  }
-  
-  @media (min-width: 960px) {
-    grid-column: span ${props => props.md || props.sm || props.xs || 12};
-  }
-`;
-
-const Divider = styled.hr`
-  border: none;
-  border-top: 1px solid #eee;
-  margin: 16px 0;
-`;
-
-const DialogOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-`;
-
-const Dialog = styled.div`
-  background: white;
-  border-radius: 4px;
-  width: 100%;
-  max-width: ${props => props.maxWidth === 'md' ? '800px' : '500px'};
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  display: flex;
-  flex-direction: column;
-  max-height: 90vh;
-`;
-
-const DialogTitle = styled.div`
-  padding: 16px 24px;
-  font-size: 1.25rem;
-  font-weight: bold;
-  border-bottom: 1px solid #eee;
-`;
-
-const DialogContent = styled.div`
-  padding: 16px 24px;
-  overflow-y: auto;
-`;
-
-const DialogActions = styled.div`
-  padding: 8px 16px;
-  display: flex;
-  justify-content: flex-end;
-  border-top: 1px solid #eee;
-`;
+import './DynamicFormBuilder.css'; // Assuming you'll create this CSS file
 
 // Icon components
 const AddIcon = () => <span>➕</span>;
@@ -434,45 +223,45 @@ const DynamicFormBuilder = () => {
     if (!showPreview) return null;
     
     return (
-      <DialogOverlay>
-        <Dialog maxWidth="md">
-          <DialogTitle>
+      <div className="dialog-overlay">
+        <div className="dialog dialog-md">
+          <div className="dialog-title">
             Form Preview: {formName}
-          </DialogTitle>
-          <DialogContent>
-            <Box mt="16px">
+          </div>
+          <div className="dialog-content">
+            <div className="box mt-16">
               {fields.map((field) => (
-                <Box key={field.id} mb="24px">
+                <div key={field.id} className="box mb-24">
                   {field.type === 'text' && (
-                    <TextField>
+                    <div className="text-field">
                       <label>{field.label}{field.required && ' *'}</label>
                       <input type="text" />
                       <div className="helper-text">Region ID: {field.region_identifier}</div>
-                    </TextField>
+                    </div>
                   )}
                   {field.type === 'number' && (
-                    <TextField>
+                    <div className="text-field">
                       <label>{field.label}{field.required && ' *'}</label>
                       <input type="number" />
                       <div className="helper-text">Region ID: {field.region_identifier}</div>
-                    </TextField>
+                    </div>
                   )}
                   {field.type === 'textarea' && (
-                    <TextField>
+                    <div className="text-field">
                       <label>{field.label}{field.required && ' *'}</label>
                       <textarea rows="4"></textarea>
                       <div className="helper-text">Region ID: {field.region_identifier}</div>
-                    </TextField>
+                    </div>
                   )}
                   {field.type === 'date' && (
-                    <TextField>
+                    <div className="text-field">
                       <label>{field.label}{field.required && ' *'}</label>
                       <input type="date" />
                       <div className="helper-text">Region ID: {field.region_identifier}</div>
-                    </TextField>
+                    </div>
                   )}
                   {field.type === 'select' && (
-                    <TextField>
+                    <div className="text-field">
                       <label>{field.label}{field.required && ' *'}</label>
                       <select>
                         <option value="">Select...</option>
@@ -481,17 +270,17 @@ const DynamicFormBuilder = () => {
                         ))}
                       </select>
                       <div className="helper-text">Region ID: {field.region_identifier}</div>
-                    </TextField>
+                    </div>
                   )}
-                </Box>
+                </div>
               ))}
-            </Box>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setShowPreview(false)}>Close</Button>
-          </DialogActions>
-        </Dialog>
-      </DialogOverlay>
+            </div>
+          </div>
+          <div className="dialog-actions">
+            <button className="btn" onClick={() => setShowPreview(false)}>Close</button>
+          </div>
+        </div>
+      </div>
     );
   };
 
@@ -500,14 +289,14 @@ const DynamicFormBuilder = () => {
     if (!openDialog) return null;
     
     return (
-      <DialogOverlay>
-        <Dialog>
-          <DialogTitle>
+      <div className="dialog-overlay">
+        <div className="dialog">
+          <div className="dialog-title">
             {currentField.id ? 'Edit Field' : 'Add New Field'}
-          </DialogTitle>
-          <DialogContent>
-            <Box mt="16px">
-              <TextField error={!!errors.label} mb="16px">
+          </div>
+          <div className="dialog-content">
+            <div className="box mt-16">
+              <div className={`text-field mb-16 ${errors.label ? 'error' : ''}`}>
                 <label>Field Label</label>
                 <input
                   type="text"
@@ -515,9 +304,9 @@ const DynamicFormBuilder = () => {
                   onChange={(e) => setCurrentField({...currentField, label: e.target.value})}
                 />
                 {errors.label && <div className="helper-text">{errors.label}</div>}
-              </TextField>
+              </div>
               
-              <TextField error={!!errors.region_identifier} mb="16px">
+              <div className={`text-field mb-16 ${errors.region_identifier ? 'error' : ''}`}>
                 <label>Region Identifier</label>
                 <input
                   type="text"
@@ -530,9 +319,9 @@ const DynamicFormBuilder = () => {
                 <div className="helper-text">
                   {errors.region_identifier || "Unique identifier used to map data to certificate regions"}
                 </div>
-              </TextField>
+              </div>
               
-              <TextField mb="16px">
+              <div className="text-field mb-16">
                 <label>Field Type</label>
                 <select
                   value={currentField.type}
@@ -542,14 +331,14 @@ const DynamicFormBuilder = () => {
                     <option key={type.value} value={type.value}>{type.label}</option>
                   ))}
                 </select>
-              </TextField>
+              </div>
               
               {currentField.type === 'select' && (
-                <Box mb="16px">
-                  <Typography variant="subtitle2" mb="8px">Options</Typography>
+                <div className="box mb-16">
+                  <div className="typography subtitle2 mb-8">Options</div>
                   
-                  <FlexBox mb="8px">
-                    <TextField error={!!errors.selectOption} mb="0" style={{flexGrow: 1}}>
+                  <div className="flex-box mb-8">
+                    <div className={`text-field mb-0 flex-grow-1 ${errors.selectOption ? 'error' : ''}`}>
                       <input
                         type="text"
                         placeholder="Add Option"
@@ -557,46 +346,44 @@ const DynamicFormBuilder = () => {
                         onChange={(e) => setSelectOption(e.target.value)}
                       />
                       {errors.selectOption && <div className="helper-text">{errors.selectOption}</div>}
-                    </TextField>
-                    <Button variant="contained" onClick={handleAddOption} margin="0 0 0 8px">
+                    </div>
+                    <button className="btn btn-contained ml-8" onClick={handleAddOption}>
                       Add
-                    </Button>
-                  </FlexBox>
+                    </button>
+                  </div>
                   
                   {errors.options && (
-                    <Typography color="error" variant="caption">
+                    <div className="typography caption text-error">
                       {errors.options}
-                    </Typography>
+                    </div>
                   )}
                   
-                  <Paper padding="8px" mt="8px">
+                  <div className="paper p-8 mt-8">
                     {currentField.options.length === 0 ? (
-                      <Typography variant="body2" color="text.secondary">
+                      <div className="typography body2 text-secondary">
                         No options added yet
-                      </Typography>
+                      </div>
                     ) : (
                       currentField.options.map((option, index) => (
-                        <FlexBox 
+                        <div 
                           key={index} 
-                          justifyContent="space-between"
-                          alignItems="center"
-                          p="8px"
+                          className="flex-box justify-between align-center p-8"
                           style={{
                             borderBottom: index < currentField.options.length - 1 ? '1px solid #eee' : 'none'
                           }}
                         >
-                          <Typography>{option}</Typography>
-                          <IconButton onClick={() => handleRemoveOption(index)}>
+                          <div className="typography">{option}</div>
+                          <button className="icon-btn" onClick={() => handleRemoveOption(index)}>
                             <DeleteIcon />
-                          </IconButton>
-                        </FlexBox>
+                          </button>
+                        </div>
                       ))
                     )}
-                  </Paper>
-                </Box>
+                  </div>
+                </div>
               )}
               
-              <Box mt="16px">
+              <div className="box mt-16">
                 <label style={{display: 'flex', alignItems: 'center'}}>
                   <input
                     type="checkbox"
@@ -606,26 +393,26 @@ const DynamicFormBuilder = () => {
                   />
                   Required Field
                 </label>
-              </Box>
-            </Box>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseFieldDialog}>Cancel</Button>
-            <Button onClick={handleAddField} variant="contained">
+              </div>
+            </div>
+          </div>
+          <div className="dialog-actions">
+            <button className="btn" onClick={handleCloseFieldDialog}>Cancel</button>
+            <button className="btn btn-contained" onClick={handleAddField}>
               {currentField.id ? 'Update Field' : 'Add Field'}
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </DialogOverlay>
+            </button>
+          </div>
+        </div>
+      </div>
     );
   };
 
   // Form builder interface
   const renderFormBuilder = () => {
     return (
-      <Container>
-        <Box mb="24px">
-          <TextField error={!!errors.formName}>
+      <div className="container">
+        <div className="box mb-24">
+          <div className={`text-field ${errors.formName ? 'error' : ''}`}>
             <label>Form Template Name</label>
             <input
               type="text"
@@ -633,25 +420,25 @@ const DynamicFormBuilder = () => {
               onChange={(e) => setFormName(e.target.value)}
             />
             {errors.formName && <div className="helper-text">{errors.formName}</div>}
-          </TextField>
-        </Box>
+          </div>
+        </div>
         
-        <FlexBox mb="24px" justifyContent="space-between">
-          <Typography variant="h6">
+        <div className="flex-box mb-24 justify-between">
+          <div className="typography h6">
             Form Fields
             {errors.fields && (
-              <Typography as="span" color="error" style={{marginLeft: '16px', fontSize: '0.8rem'}}>
+              <span className="typography text-error" style={{marginLeft: '16px', fontSize: '0.8rem'}}>
                 {errors.fields}
-              </Typography>
+              </span>
             )}
-          </Typography>
-          <Button 
-            variant="contained" 
+          </div>
+          <button 
+            className="btn btn-contained" 
             onClick={() => handleOpenFieldDialog()}
           >
             <AddIcon /> Add Field
-          </Button>
-        </FlexBox>
+          </button>
+        </div>
         
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="fields">
@@ -662,24 +449,22 @@ const DynamicFormBuilder = () => {
                 style={{marginBottom: '24px'}}
               >
                 {fields.length === 0 ? (
-                  <Paper 
-                    padding="24px" 
-                    bgColor="#f9f9f9"
+                  <div 
+                    className="paper p-24 bg-light"
                     style={{textAlign: 'center'}}
                   >
-                    <Typography color="text.secondary">
+                    <div className="typography text-secondary">
                       No fields added yet. Click "Add Field" to start building your form.
-                    </Typography>
-                  </Paper>
+                    </div>
+                  </div>
                 ) : (
                   fields.map((field, index) => (
                     <Draggable key={field.id} draggableId={field.id} index={index}>
                       {(provided) => (
-                        <Paper
+                        <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
-                          padding="16px"
-                          mb="16px"
+                          className="paper p-16 mb-16"
                           style={{
                             display: 'flex',
                             alignItems: 'center',
@@ -690,38 +475,40 @@ const DynamicFormBuilder = () => {
                             <DragIcon />
                           </div>
                           
-                          <Box flexGrow="1">
-                            <Typography variant="subtitle1">
+                          <div className="box flex-grow-1">
+                            <div className="typography subtitle1">
                               {field.label}
                               {field.required && (
-                                <Typography as="span" color="error" style={{marginLeft: '4px'}}>*</Typography>
+                                <span className="typography text-error" style={{marginLeft: '4px'}}>*</span>
                               )}
-                            </Typography>
+                            </div>
                             
-                            <FlexBox alignItems="center" mt="4px">
-                              <Typography variant="caption" color="text.secondary" mr="16px">
+                            <div className="flex-box align-center mt-4">
+                              <div className="typography caption text-secondary mr-16">
                                 Type: {fieldTypes.find(t => t.value === field.type)?.label}
-                              </Typography>
-                              <Typography variant="caption" color="primary">
+                              </div>
+                              <div className="typography caption text-primary">
                                 Region ID: {field.region_identifier}
-                              </Typography>
-                            </FlexBox>
-                          </Box>
+                              </div>
+                            </div>
+                          </div>
                           
                           <div>
-                            <IconButton 
+                            <button 
+                              className="icon-btn"
                               onClick={() => handleOpenFieldDialog(field)}
                               style={{marginRight: '8px'}}
                             >
                               <EditIcon />
-                            </IconButton>
-                            <IconButton 
+                            </button>
+                            <button 
+                              className="icon-btn"
                               onClick={() => handleDeleteField(field.id)}
                             >
                               <DeleteIcon />
-                            </IconButton>
+                            </button>
                           </div>
-                        </Paper>
+                        </div>
                       )}
                     </Draggable>
                   ))
@@ -732,108 +519,108 @@ const DynamicFormBuilder = () => {
           </Droppable>
         </DragDropContext>
         
-        <FlexBox justifyContent="space-between">
-          <Button 
-            variant="outlined" 
+        <div className="flex-box justify-between">
+          <button 
+            className="btn btn-outlined" 
             onClick={() => setIsEditing(false)}
           >
             Cancel
-          </Button>
+          </button>
           <div>
-            <Button 
-              variant="outlined" 
+            <button 
+              className="btn btn-outlined mr-16" 
               onClick={() => setShowPreview(true)}
-              style={{marginRight: '16px'}}
               disabled={fields.length === 0}
             >
               <PreviewIcon /> Preview Form
-            </Button>
-            <Button 
-              variant="contained" 
+            </button>
+            <button 
+              className="btn btn-contained" 
               onClick={handleSaveTemplate}
             >
               <SaveIcon /> Save Template
-            </Button>
+            </button>
           </div>
-        </FlexBox>
-      </Container>
+        </div>
+      </div>
     );
   };
 
   // Template list view
   const renderTemplateList = () => {
     return (
-      <Container>
-        <FlexBox mb="24px" justifyContent="space-between" alignItems="center">
-          <Typography variant="h5">Dynamic Form Templates</Typography>
-          <Button 
-            variant="contained" 
+      <div className="container">
+        <div className="flex-box mb-24 justify-between align-center">
+          <div className="typography h5">Dynamic Form Templates</div>
+          <button 
+            className="btn btn-contained" 
             onClick={handleCreateTemplate}
           >
             <AddIcon /> Create New Template
-          </Button>
-        </FlexBox>
+          </button>
+        </div>
         
         {formTemplates.length === 0 ? (
-          <Paper padding="24px" bgColor="#f9f9f9" style={{textAlign: 'center'}}>
-            <Typography variant="h6" color="text.secondary" mb="16px">
+          <div className="paper p-24 bg-light" style={{textAlign: 'center'}}>
+            <div className="typography h6 text-secondary mb-16">
               No Form Templates Yet
-            </Typography>
-            <Typography color="text.secondary" mb="16px">
+            </div>
+            <div className="typography text-secondary mb-16">
               Create your first dynamic form template to get started.
-            </Typography>
-            <Button 
-              variant="outlined" 
+            </div>
+            <button 
+              className="btn btn-outlined" 
               onClick={handleCreateTemplate}
             >
               <AddIcon /> Create Template
-            </Button>
-          </Paper>
+            </button>
+          </div>
         ) : (
-          <Grid>
+          <div className="grid">
             {formTemplates.map((template) => (
-              <GridItem key={template.id} xs={12} sm={6} md={4}>
-                <Card>
-                  <CardContent>
-                    <Typography variant="h6" mb="8px">
+              <div key={template.id} className="grid-item">
+                <div className="card">
+                  <div className="card-content">
+                    <div className="typography h6 mb-8">
                       {template.name}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" mb="8px">
+                    </div>
+                    <div className="typography body2 text-secondary mb-8">
                       {template.fields.length} field{template.fields.length !== 1 ? 's' : ''}
-                    </Typography>
-                    <Divider />
-                    <Box mt="8px">
+                    </div>
+                    <hr className="divider" />
+                    <div className="box mt-8">
                       {template.fields.slice(0, 3).map((field) => (
-                        <Typography key={field.id} variant="caption" display="block" color="text.secondary">
+                        <div key={field.id} className="typography caption block text-secondary">
                           • {field.label} ({field.region_identifier})
-                        </Typography>
+                        </div>
                       ))}
                       {template.fields.length > 3 && (
-                        <Typography variant="caption" color="text.secondary">
+                        <div className="typography caption text-secondary">
                           ...and {template.fields.length - 3} more
-                        </Typography>
+                        </div>
                       )}
-                    </Box>
-                  </CardContent>
-                  <CardActions>
-                    <Button 
+                    </div>
+                  </div>
+                  <div className="card-actions">
+                    <button 
+                      className="btn"
                       onClick={() => handleEditTemplate(template)}
                     >
                       Edit
-                    </Button>
-                    <Button 
-                      color="error"
+                    </button>
+                    <button 
+                      className="btn text-error"
                       onClick={() => handleDeleteTemplate(template.id)}
                     >
                       Delete
-                    </Button>
-                  </CardActions>
-                </Card>
-              </GridItem>
+                    </button>
+                  </div>
+                </div>
+              </div>
             ))}
-          </Grid>
+          </div>
         )}
-      </Container>
+      </div>
     );
   };
 
