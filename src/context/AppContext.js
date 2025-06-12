@@ -114,7 +114,7 @@ const appReducer = (state, action) => {
 };
 
 // Create context
-const AppContext = createContext();
+export const AppContext = createContext();
 
 // Provider component
 export const AppProvider = ({ children }) => {
