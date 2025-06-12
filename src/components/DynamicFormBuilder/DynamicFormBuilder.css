@@ -1,0 +1,225 @@
+.dynamic-form-builder {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.field-list {
+  margin: 20px 0;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  background-color: #f9f9f9;
+}
+
+.field-item {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.field-item:hover {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.field-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.field-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.field-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #666;
+  padding: 5px;
+}
+
+.field-action-btn:hover {
+  color: #007bff;
+}
+
+.field-action-btn.delete:hover {
+  color: #dc3545;
+}
+
+.field-type-selector {
+  margin-bottom: 20px;
+}
+
+.field-properties {
+  margin-top: 15px;
+}
+
+.field-property {
+  margin-bottom: 10px;
+}
+
+.field-property label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.field-property input,
+.field-property select,
+.field-property textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.options-list {
+  margin-top: 10px;
+}
+
+.option-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.option-item input {
+  flex: 1;
+  margin-right: 10px;
+}
+
+.add-option-btn {
+  margin-top: 5px;
+  background: none;
+  border: 1px solid #007bff;
+  color: #007bff;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.add-option-btn:hover {
+  background-color: #f0f7ff;
+}
+
+.add-field-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: #f0f7ff;
+  border: 1px dashed #007bff;
+  color: #007bff;
+  text-align: center;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 20px 0;
+}
+
+.add-field-btn:hover {
+  background-color: #e0f0ff;
+}
+
+.form-preview {
+  margin-top: 30px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #fff;
+}
+
+.form-preview h3 {
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.template-card {
+  background-color: #fff;
+  border-radius: 5px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.template-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.template-title {
+  margin: 0;
+  font-size: 20px;
+}
+
+.template-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.template-description {
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.template-fields {
+  margin-top: 15px;
+}
+
+.template-field {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.template-field:last-child {
+  border-bottom: none;
+}
+
+.field-label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.field-type {
+  color: #666;
+  font-size: 14px;
+}
+
+.field-identifier {
+  color: #007bff;
+  font-size: 14px;
+  font-family: monospace;
+  background-color: #f8f9fa;
+  padding: 2px 5px;
+  border-radius: 3px;
+  margin-left: 10px;
+}
+
+.no-templates {
+  text-align: center;
+  padding: 30px;
+  color: #666;
+}
+
+.drag-handle {
+  cursor: move;
+  padding: 5px;
+  margin-right: 10px;
+  color: #999;
+}
+
+.drag-handle:hover {
+  color: #333;
+}
+
+.dragging {
+  opacity: 0.5;
+}
