@@ -8,7 +8,9 @@ const initialState = {
   selectedStudent: null,
   selectedTemplate: null,
   selectedFormTemplate: null,
-  notification: null
+  notification: null,
+  formData: {},        // Added formData to store dynamic form values
+  formErrors: {}       // Added formErrors to track validation errors
 };
 
 // Action types
@@ -26,7 +28,11 @@ const ActionTypes = {
   DELETE_FORM_TEMPLATE: 'DELETE_FORM_TEMPLATE',
   SET_SELECTED_FORM_TEMPLATE: 'SET_SELECTED_FORM_TEMPLATE',
   SET_NOTIFICATION: 'SET_NOTIFICATION',
-  CLEAR_NOTIFICATION: 'CLEAR_NOTIFICATION'
+  CLEAR_NOTIFICATION: 'CLEAR_NOTIFICATION',
+  UPDATE_FORM_DATA: 'UPDATE_FORM_DATA',   // Added for form data updates
+  CLEAR_FORM_DATA: 'CLEAR_FORM_DATA',     // Added to reset form data
+  SET_FORM_ERRORS: 'SET_FORM_ERRORS',     // Added for form validation errors
+  CLEAR_FORM_ERRORS: 'CLEAR_FORM_ERRORS'  // Added to reset form errors
 };
 
 // Reducer function
@@ -108,6 +114,32 @@ const appReducer = (state, action) => {
         ...state,
         notification: null
       };
+    case ActionTypes.UPDATE_FORM_DATA:
+      return {
+        ...state,
+        formData: {
+          ...state.formData,
+          ...action.payload
+        }
+      };
+    case ActionTypes.CLEAR_FORM_DATA:
+      return {
+        ...state,
+        formData: {}
+      };
+    case ActionTypes.SET_FORM_ERRORS:
+      return {
+        ...state,
+        formErrors: {
+          ...state.formErrors,
+          ...action.payload
+        }
+      };
+    case ActionTypes.CLEAR_FORM_ERRORS:
+      return {
+        ...state,
+        formErrors: {}
+      };
     default:
       return state;
   }
@@ -124,12 +156,14 @@ export const AppProvider = ({ children }) => {
       const studentsData = localStorage.getItem('students');
       const templatesData = localStorage.getItem('templates');
       const formTemplatesData = localStorage.getItem('formTemplates');
+      const formData = localStorage.getItem('formData');
       
       return {
         ...initialState,
         students: studentsData ? JSON.parse(studentsData) : [],
         templates: templatesData ? JSON.parse(templatesData) : [],
-        formTemplates: formTemplatesData ? JSON.parse(formTemplatesData) : []
+        formTemplates: formTemplatesData ? JSON.parse(formTemplatesData) : [],
+        formData: formData ? JSON.parse(formData) : {}
       };
     } catch (error) {
       console.error('Error loading data from localStorage:', error);
@@ -145,6 +179,7 @@ export const AppProvider = ({ children }) => {
       localStorage.setItem('students', JSON.stringify(state.students));
       localStorage.setItem('templates', JSON.stringify(state.templates));
       localStorage.setItem('formTemplates', JSON.stringify(state.formTemplates));
+      localStorage.setItem('formData', JSON.stringify(state.formData));
     } catch (error) {
       console.error('Error saving data to localStorage:', error);
       dispatch({ 
@@ -155,7 +190,7 @@ export const AppProvider = ({ children }) => {
         } 
       });
     }
-  }, [state.students, state.templates, state.formTemplates]);
+  }, [state.students, state.templates, state.formTemplates, state.formData]);
 
   // Helper function to show notifications
   const showNotification = (type, message) => {
@@ -244,6 +279,23 @@ export const AppProvider = ({ children }) => {
     dispatch({ type: ActionTypes.SET_SELECTED_FORM_TEMPLATE, payload: formTemplate });
   };
 
+  // Dynamic form data actions
+  const updateFormData = (data) => {
+    dispatch({ type: ActionTypes.UPDATE_FORM_DATA, payload: data });
+  };
+
+  const clearFormData = () => {
+    dispatch({ type: ActionTypes.CLEAR_FORM_DATA });
+  };
+
+  const setFormErrors = (errors) => {
+    dispatch({ type: ActionTypes.SET_FORM_ERRORS, payload: errors });
+  };
+
+  const clearFormErrors = () => {
+    dispatch({ type: ActionTypes.CLEAR_FORM_ERRORS });
+  };
+
   // Helper functions for region identifiers
   const getRegionIdentifiers = (formTemplateId) => {
     const formTemplate = state.formTemplates.find(ft => ft.id === formTemplateId);
@@ -287,6 +339,67 @@ export const AppProvider = ({ children }) => {
     return state.students.filter(student => student.formTemplateId === formTemplateId);
   };
 
+  // Validate form data against form template
+  const validateFormData = (formData, formTemplateId) => {
+    const formTemplate = state.formTemplates.find(ft => ft.id === formTemplateId);
+    if (!formTemplate) return { valid: false, errors: { _general: 'Form template not found' } };
+    
+    const errors = {};
+    let valid = true;
+    
+    formTemplate.fields.forEach(field => {
+      if (field.required && (!formData[field.id] || formData[field.id] === '')) {
+        errors[field.id] = `${field.name} is required`;
+        valid = false;
+      }
+      
+      // Type validation
+      if (formData[field.id]) {
+        switch (field.type) {
+          case 'number':
+            if (isNaN(Number(formData[field.id]))) {
+              errors[field.id] = `${field.name} must be a number`;
+              valid = false;
+            }
+            break;
+          case 'email':
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(formData[field.id])) {
+              errors[field.id] = `${field.name} must be a valid email address`;
+              valid = false;
+            }
+            break;
+          case 'date':
+            if (isNaN(Date.parse(formData[field.id]))) {
+              errors[field.id] = `${field.name} must be a valid date`;
+              valid = false;
+            }
+            break;
+          // Add more validations as needed
+        }
+      }
+    });
+    
+    setFormErrors(errors);
+    return { valid, errors };
+  };
+
+  // Generate document from template and form data
+  const generateDocument = (templateId, formData) => {
+    const template = state.templates.find(t => t.id === templateId);
+    if (!template) return { error: 'Template not found' };
+    
+    let content = template.content;
+    
+    // Replace placeholders with actual data
+    Object.entries(formData).forEach(([key, value]) => {
+      const placeholder = `{{${key}}}`;
+      content = content.replace(new RegExp(placeholder, 'g'), value);
+    });
+    
+    return { content };
+  };
+
   // Value object to be provided to consumers
   const value = {
     students: state.students,
@@ -296,6 +409,8 @@ export const AppProvider = ({ children }) => {
     selectedTemplate: state.selectedTemplate,
     selectedFormTemplate: state.selectedFormTemplate,
     notification: state.notification,
+    formData: state.formData,
+    formErrors: state.formErrors,
     addStudent,
     updateStudent,
     deleteStudent,
@@ -308,9 +423,15 @@ export const AppProvider = ({ children }) => {
     updateFormTemplate,
     deleteFormTemplate,
     setSelectedFormTemplate,
+    updateFormData,
+    clearFormData,
+    setFormErrors,
+    clearFormErrors,
     getRegionIdentifiers,
     validateTemplateAgainstForm,
     getStudentsByFormTemplateId,
+    validateFormData,
+    generateDocument,
     showNotification
   };
 
