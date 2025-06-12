@@ -5,10 +5,10 @@ import './App.css';
 // Components
 import Header from './components/shared/Header';
 import Sidebar from './components/shared/Sidebar';
-import StudentRecords from './components/StudentRecords';
-import TemplateManager from './components/TemplateManager';
-import CertificateGenerator from './components/CertificateGenerator';
-import CertificatePreview from './components/CertificatePreview';
+import StudentList from './components/students/StudentList';
+import TemplateList from './components/templates/TemplateList';
+import CertificateCreator from './components/certificates/CertificateCreator';
+import CertificateViewer from './components/certificates/CertificateViewer';
 import NotFound from './components/shared/NotFound';
 
 // Context
@@ -24,10 +24,10 @@ function App() {
           <main className="content">
             <Routes>
               <Route path="/" element={<Navigate to="/students" replace />} />
-              <Route path="/students" element={<StudentRecords />} />
-              <Route path="/templates" element={<TemplateManager />} />
-              <Route path="/generate" element={<CertificateGenerator />} />
-              <Route path="/certificate-preview/:id" element={<CertificatePreview />} />
+              <Route path="/students" element={<StudentList />} />
+              <Route path="/templates" element={<TemplateList />} />
+              <Route path="/generate" element={<CertificateCreator />} />
+              <Route path="/certificate-preview/:id" element={<CertificateViewer />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
