@@ -3,8 +3,8 @@ import { useAppContext } from '../../context/AppContext';
 import StudentForm from './StudentForm';
 import StudentList from './StudentList';
 import './StudentRecords.css';
-import FormTemplateSelector from '../templates/FormTemplateSelector';
-import RecordDetails from '../details/RecordDetails';
+import FormTemplateSelector from './FormTemplateSelector';
+import RecordDetails from './RecordDetails';
 
 const StudentRecords = () => {
   const { students, formTemplates } = useAppContext();
