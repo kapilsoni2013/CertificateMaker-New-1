@@ -1,9 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAppContext } from '../../context/AppContext';
 import './FormTemplateSelector.css';
 
 const FormTemplateSelector = ({ onSelect }) => {
   const { formTemplates } = useAppContext();
+  const [selectedTemplateId, setSelectedTemplateId] = useState(null);
+
+  const handleTemplateSelect = (template) => {
+    setSelectedTemplateId(template.id);
+    onSelect(template);
+  };
 
   return (
     <div className="form-template-selector">
@@ -15,8 +21,8 @@ const FormTemplateSelector = ({ onSelect }) => {
           {formTemplates.map(template => (
             <div 
               key={template.id} 
-              className="template-card"
-              onClick={() => onSelect(template)}
+              className={`template-card ${selectedTemplateId === template.id ? 'selected' : ''}`}
+              onClick={() => handleTemplateSelect(template)}
             >
               <h4>{template.name}</h4>
               <p>{template.fields.length} fields</p>
