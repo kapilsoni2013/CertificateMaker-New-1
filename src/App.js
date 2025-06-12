@@ -6,7 +6,8 @@ import './App.css';
 import StudentRecords from './components/StudentRecords';
 import TemplateManager from './components/TemplateManager';
 import CertificateGenerator from './components/CertificateGenerator';
-import DynamicFormBuilder from './components/DynamicFormBuilder';
+import FormBuilder from './components/FormBuilder';
+import CertificatePreview from './components/CertificatePreview';
 import { AppProvider } from './context/AppContext';
 import Header from './components/shared/Header';
 import Footer from './components/shared/Footer';
@@ -23,7 +24,8 @@ function App() {
                 <li><Link to="/">Student Records</Link></li>
                 <li><Link to="/templates">Template Manager</Link></li>
                 <li><Link to="/generator">Certificate Generator</Link></li>
-                <li><Link to="/form-builder">Dynamic Form Builder</Link></li>
+                <li><Link to="/form-builder">Form Builder</Link></li>
+                <li><Link to="/preview">Certificate Preview</Link></li>
               </ul>
             </nav>
             <div className="content-area">
@@ -31,7 +33,8 @@ function App() {
                 <Route path="/" element={<StudentRecords />} />
                 <Route path="/templates" element={<TemplateManager />} />
                 <Route path="/generator" element={<CertificateGenerator />} />
-                <Route path="/form-builder" element={<DynamicFormBuilder />} />
+                <Route path="/form-builder" element={<FormBuilder />} />
+                <Route path="/preview" element={<CertificatePreview />} />
               </Routes>
             </div>
           </div>
