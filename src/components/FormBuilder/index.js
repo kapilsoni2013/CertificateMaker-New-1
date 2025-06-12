@@ -1,5 +1,5 @@
 import React from 'react';
-import DynamicFormBuilder from '../../components/DynamicFormBuilder';
+import DynamicFormBuilder from './DynamicFormBuilder';
 import './FormBuilder.css';
 
 const FormBuilder = () => {
